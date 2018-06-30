@@ -1,0 +1,12 @@
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Leinigen
+target
+.nrepl-port
+.lein-repl-history
+
+# deps
+.cpcache
