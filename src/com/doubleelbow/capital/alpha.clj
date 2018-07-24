@@ -1,8 +1,5 @@
 (ns com.doubleelbow.capital.alpha
-  (:require [clojure.core.async :refer [chan put! take!]]))
-
-(defprotocol Service
-  (prepare-context [service context]))
+  (:require [clojure.core.async :as async]))
 
 (defn- channel? [c] (instance? clojure.core.async.impl.protocols.Channel c))
 
@@ -51,19 +48,41 @@
                   (not (empty? (::queue context))) (execute-queue context)
                   :else (execute-stack context :down))]
     (cond
-      (channel? context) (take! context
+      (channel? context) (async/take! context
                                 (fn [ctx]
                                   (step-through! ctx c)))
-      (finished? context) (put! c (::response context))
+      (finished? context) (async/put! c (::response context))
       :else (step-through! context c))))
 
-(defn <send
-  [service request interceptors]
-  (let [c (chan)
-        context (->> {::request request
-                      ::queue interceptors
-                      ::stack '()}
-                     (prepare-context service))]
+(defn- merge-init-context [ctx init-map name]
+  (reduce (fn [c [k v]]
+            (if-let [x (get c k)]
+              (do
+                (print (str "cannot add key " k " of interceptor " name " - key already exists"))
+                c)
+              (assoc c k v)))
+          ctx
+          init-map))
+
+(defn- create-init-context [ctx interceptors]
+  (reduce #(merge-init-context %1 (::init %2 {}) (::name %2 "unknown"))
+          ctx
+          interceptors))
+
+(defn initial-context [type name interceptors]
+  (-> {}
+      (assoc ::type type)
+      (assoc ::name name)
+      (assoc ::interceptors interceptors)
+      (create-init-context interceptors)))
+
+(defn <send!
+  [request context]
+  (let [c (async/chan)
+        ctx (-> context
+                (assoc ::request request)
+                (assoc ::queue (::interceptors context))
+                (assoc ::stack '()))]
     (do
-      (step-through! context c)
+      (step-through! ctx c)
       c)))
