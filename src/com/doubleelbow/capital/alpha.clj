@@ -1,12 +1,13 @@
 (ns com.doubleelbow.capital.alpha
-  (:require [clojure.core.async :as async]))
+  (:require [clojure.core.async :as async]
+            [com.doubleelbow.capital.interceptor.alpha :as interceptor]))
 
 (defn- channel? [c] (instance? clojure.core.async.impl.protocols.Channel c))
 
 (defn- finished? [ctx] (and (empty? (::queue ctx)) (empty? (::stack ctx))))
 
 (defn- throwable->ex-info [^Throwable t interceptor stage]
-  (let [iname (:name interceptor)
+  (let [iname (::interceptor/name interceptor)
         throwable-str (pr-str (type t))]
     (ex-info (str throwable-str " in Interceptor " iname " - " (.getMessage t))
              (merge {:stage stage
@@ -17,9 +18,9 @@
              t)))
 
 (defn- try-f [context interceptor stage]
-  (if-let [f (get interceptor stage)]
+  (if-let [f (interceptor/get-stage-fn interceptor stage)]
     (try
-      (if (= stage :error)
+      (if (= stage ::interceptor/error)
         (f (dissoc context ::error) (::error context))
         (f context))
       (catch Throwable t
@@ -33,7 +34,7 @@
     (-> context
         (assoc ::queue new-queue
                ::stack new-stack)
-        (try-f current-intc :up))))
+        (try-f current-intc ::interceptor/up))))
 
 (defn- execute-stack [context stage]
   (let [current-intc (first (::stack context))
@@ -44,9 +45,9 @@
 
 (defn- step-through! [context c]
   (let [context (cond
-                  (::error context) (execute-stack context :error)
+                  (::error context) (execute-stack context ::interceptor/error)
                   (not (empty? (::queue context))) (execute-queue context)
-                  :else (execute-stack context :down))]
+                  :else (execute-stack context ::interceptor/down))]
     (cond
       (channel? context) (async/take! context
                                 (fn [ctx]
@@ -65,7 +66,11 @@
           init-map))
 
 (defn- create-init-context [ctx interceptors]
-  (reduce #(merge-init-context %1 (::init %2 {}) (::name %2 "unknown"))
+  (reduce #(if (interceptor/interceptor? %2)
+             (merge-init-context %1 (::interceptor/init %2 {}) (::interceptor/name %2 "unknown"))
+             (do
+               (print (str %2 " is not an interceptor"))
+               %1))
           ctx
           interceptors))
 

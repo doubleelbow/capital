@@ -1,18 +1,19 @@
 (ns examples.printing
   (:require [clojure.core.async :refer [go]]
-            [com.doubleelbow.capital.alpha :as capital]))
+            [com.doubleelbow.capital.alpha :as capital]
+            [com.doubleelbow.capital.interceptor.alpha :as interceptor]))
 
 (def ^:private response-handling-intc
-  {:name :prepare-context
-   :up (fn [context]
+  {::interceptor/name :prepare-context
+   ::interceptor/up (fn [context]
          (assoc context :execution-order []))
-   :down (fn [context]
+   ::interceptor/down (fn [context]
            (assoc context ::capital/response (:execution-order context)))})
 
 (defn- self-describing-intc [name print-fn]
-  {:name (keyword name)
-   :up (print-fn name :up)
-   :down (print-fn name :down)})
+  {::interceptor/name (keyword name)
+   ::interceptor/up (print-fn name ::interceptor/up)
+   ::interceptor/down (print-fn name ::interceptor/down)})
 
 (defn- sync-print-intc [name]
   (letfn [(print-fn [value stage]
@@ -31,8 +32,8 @@
     (self-describing-intc name print-fn)))
 
 (def ^:private request-intc
-  {:name :fake-request
-   :up (fn [context]
+  {::interceptor/name :fake-request
+   ::interceptor/up (fn [context]
          (do
            (println "Putting Success as response")
            (update context :execution-order conj "Putting Success as response.")))})
