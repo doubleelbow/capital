@@ -1,6 +1,7 @@
 (ns com.doubleelbow.capital.alpha
   (:require [clojure.core.async :as async]
-            [com.doubleelbow.capital.interceptor.alpha :as interceptor]))
+            [com.doubleelbow.capital.interceptor.alpha :as interceptor]
+            [io.pedestal.log :as log]))
 
 (defn- channel? [c] (instance? clojure.core.async.impl.protocols.Channel c))
 
@@ -59,7 +60,7 @@
   (reduce (fn [c [k v]]
             (if-let [x (get c k)]
               (do
-                (print (str "cannot add key " k " of interceptor " name " - key already exists"))
+                (log/debug :msg (str "cannot add key " k " of interceptor " name " - key already exists"))
                 c)
               (assoc c k v)))
           ctx
@@ -69,7 +70,7 @@
   (reduce #(if (interceptor/interceptor? %2)
              (merge-init-context %1 (::interceptor/init %2 {}) (::interceptor/name %2 "unknown"))
              (do
-               (print (str %2 " is not an interceptor"))
+               (log/debug :msg (str %2 " is not an interceptor"))
                %1))
           ctx
           interceptors))

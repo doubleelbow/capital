@@ -10,3 +10,6 @@ target
 
 # deps
 .cpcache
+
+# examples logs
+logs
