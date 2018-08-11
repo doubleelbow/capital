@@ -9,7 +9,7 @@
       (contains-at-least-one? v aliases))
     false))
 
-(defn- get-stage-alias [interceptor stage]
+(defn- stage-alias [interceptor stage]
   (if-let [aliases (::aliases interceptor)]
     (let [i (case stage
               ::up 0
@@ -18,6 +18,12 @@
       (get aliases i))
     stage))
 
-(defn get-stage-fn [interceptor stage]
-  (let [stage (get-stage-alias interceptor stage)]
+(defn stage-fn [interceptor stage]
+  (let [stage (stage-alias interceptor stage)]
     (get interceptor stage)))
+
+(defn names [coll]
+  (cond
+    (nil? coll) []
+    (map? coll) [(::name coll)]
+    :else (map ::name coll)))

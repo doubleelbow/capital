@@ -19,7 +19,7 @@
              t)))
 
 (defn- try-f [context interceptor stage]
-  (if-let [f (interceptor/get-stage-fn interceptor stage)]
+  (if-let [f (interceptor/stage-fn interceptor stage)]
     (try
       (if (= stage ::interceptor/error)
         (f (dissoc context ::error) (::error context))
@@ -45,6 +45,7 @@
         (try-f current-intc stage))))
 
 (defn- step-through! [context c]
+  (log/debug :msg "stepping through interceptor chain" :queue (interceptor/names (::queue context)) :stack (interceptor/names (::stack context)))
   (let [context (cond
                   (::error context) (execute-stack context ::interceptor/error)
                   (not (empty? (::queue context))) (execute-queue context)
@@ -89,6 +90,9 @@
                 (assoc ::request request)
                 (assoc ::queue (::interceptors context))
                 (assoc ::stack '()))]
-    (do
-      (step-through! ctx c)
-      c)))
+    (log/debug :msg "sending request over capital service"
+               :context (-> context
+                            (update ::interceptors interceptor/names)
+                            (dissoc ::queue ::stack)))
+    (step-through! ctx c)
+    c))
