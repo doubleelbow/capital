@@ -30,7 +30,9 @@
         (-> context
             (assoc ::queue [])
             (assoc ::error (throwable->ex-info t (::interceptor/name interceptor) stage)))))
-    context))
+    (do
+      (log/debug :msg "stage function not found" :interceptor (::interceptor/name interceptor) ::stage stage)
+      context)))
 
 (defn- execute-queue [context]
   (let [current-intc (first (::queue context))

@@ -6,7 +6,7 @@
 (defn interceptor? [v]
   (if (map? v)
     (let [aliases (::aliases v [::up ::down ::error])]
-      (contains-at-least-one? v aliases))
+      (or (contains-at-least-one? v aliases) (contains? v ::init)))
     false))
 
 (defn- stage-alias [interceptor stage]
@@ -15,7 +15,7 @@
               ::up 0
               ::down 1
               ::error 2)]
-      (get aliases i))
+      (get aliases i (get [::up ::down ::error] i)))
     stage))
 
 (defn stage-fn [interceptor stage]
