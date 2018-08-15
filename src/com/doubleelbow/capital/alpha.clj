@@ -7,16 +7,18 @@
 
 (defn- finished? [ctx] (and (empty? (::queue ctx)) (empty? (::stack ctx))))
 
-(defn- throwable->ex-info [^Throwable t interceptor stage]
-  (let [iname (::interceptor/name interceptor)
-        throwable-str (pr-str (type t))]
+(defn- throwable->ex-info [^Throwable t iname stage]
+  (let [throwable-str (pr-str (type t))]
     (ex-info (str throwable-str " in Interceptor " iname " - " (.getMessage t))
-             (merge {:stage stage
-                     :interceptor iname
-                     :exception-type (keyword throwable-str)
-                     :exception t}
+             (merge {::stage stage
+                     ::name iname
+                     ::exception-type (keyword throwable-str)
+                     ::exception t}
                     (ex-data t))
              t)))
+
+(defn throw-on-channel [^Throwable t c context interceptor-name stage]
+  (async/put! c (assoc context ::error (throwable->ex-info t interceptor-name stage))))
 
 (defn- try-f [context interceptor stage]
   (if-let [f (interceptor/stage-fn interceptor stage)]
@@ -25,7 +27,9 @@
         (f (dissoc context ::error) (::error context))
         (f context))
       (catch Throwable t
-        (assoc context ::error (throwable->ex-info t interceptor stage))))
+        (-> context
+            (assoc ::queue [])
+            (assoc ::error (throwable->ex-info t (::interceptor/name interceptor) stage)))))
     context))
 
 (defn- execute-queue [context]
@@ -57,6 +61,18 @@
       (finished? context) (async/put! c (::response context))
       :else (step-through! context c))))
 
+(defn- dependent-interceptors-present? [interceptors dependencies]
+  (log/debug :msg "dependent interceptors present ?" :interceptors interceptors :dependencies dependencies)
+  (let [dependencies (if (keyword? dependencies)
+                       [dependencies]
+                       dependencies)]
+    (every? #(not= -1 (.indexOf interceptors %)) dependencies)))
+
+(defn dependencies-present? [current-intc all-intcs]
+  (log/debug :msg "check dependencies" :current current-intc :interceptors all-intcs)
+  (dependent-interceptors-present? (take-while #(not= (::interceptor/name current-intc) %) all-intcs)
+                                  (::interceptor/dependencies current-intc)))
+
 (defn- merge-init-context [ctx init-map name]
   (reduce (fn [c [k v]]
             (if-let [x (get c k)]
@@ -68,20 +84,23 @@
           init-map))
 
 (defn- create-init-context [ctx interceptors]
-  (reduce #(if (interceptor/interceptor? %2)
-             (merge-init-context %1 (::interceptor/init %2 {}) (::interceptor/name %2 "unknown"))
-             (do
-               (log/debug :msg (str %2 " is not an interceptor"))
-               %1))
+  (reduce #(cond
+             (not (interceptor/interceptor? %2)) (throw (ex-info "Not an interceptor." {:value %2}))
+             (not (dependencies-present? %2 (interceptor/names (::interceptors %1)))) (throw (ex-info "Could not find all dependent interceptors." {:interceptor (::interceptor/name %2)
+                                                                                                                                                    :dependencies (::interceptor/dependencies %2)}))
+             :else (merge-init-context %1 (::interceptor/init %2 {}) (::interceptor/name %2 "unknown")))
           ctx
           interceptors))
 
-(defn initial-context [type name interceptors]
-  (-> {}
-      (assoc ::type type)
-      (assoc ::name name)
-      (assoc ::interceptors interceptors)
-      (create-init-context interceptors)))
+(defn initial-context [name interceptors]
+  (try
+    (-> {}
+        (assoc ::name name)
+        (assoc ::interceptors interceptors)
+        (create-init-context interceptors))
+    (catch Exception e (do
+                         (log/error :msg (.getMessage e) :data (ex-data e))
+                         (throw e)))))
 
 (defn <send!
   [request context]

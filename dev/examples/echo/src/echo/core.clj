@@ -48,7 +48,7 @@
                          (do
                            (assoc ctx ::capital/response {:error (ex-data e)})))})
 
-(defonce service (capital/initial-context :simple :echo-service [cache-intc echo-intc]))
+(defonce service (capital/initial-context :echo-service [cache-intc echo-intc]))
 
 (defn- send-message [msg]
   (log/debug :msg (str "sending " msg " ..."))

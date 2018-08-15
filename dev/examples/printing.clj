@@ -43,7 +43,7 @@
 
 (defn- simple-service [intc-fn size]
   (let [intcs (conj (vec (concat [response-handling-intc] (interceptors intc-fn size))) request-intc)]
-    (capital/initial-context :simple :example-printing-service intcs)))
+    (capital/initial-context :example-printing-service intcs)))
 
 (defn sync-service [size]
   (simple-service sync-print-intc size))
