@@ -1,6 +1,7 @@
 (ns com.doubleelbow.capital.interceptor.impl.alpha.circuit-breaker
   (:require [com.doubleelbow.capital.alpha :as capital]
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
+            [com.doubleelbow.capital.interceptor.impl.alpha :as impl]
             [com.doubleelbow.capital.interceptor.impl.alpha.time :as time-intc]
             [com.doubleelbow.capital.interceptor.impl.alpha.response-error :as response-error]
             [io.pedestal.log :as log]
@@ -10,8 +11,7 @@
   (get-in context [::circuit-breaker-stats k]))
 
 (defn- config [context k]
-  (let [conf (::circuit-breaker-config context)]
-    (k @conf)))
+  (impl/config context ::circuit-breaker-config k))
 
 (defn- current-state [context]
   (::state-type (deref (stat context ::state))))
@@ -82,10 +82,10 @@
   {::interceptor/name ::circuit-breaker
    ::interceptor/dependencies ::time-intc/time
    ::interceptor/aliases [::before ::after]
-   ::interceptor/init {::circuit-breaker-config (atom config)
-                       ::circuit-breaker-stats {::requests (atom [])
-                                                ::state (atom {::state-type ::closed
-                                                               ::last-change nil})}}
+   ::interceptor/init (-> (impl/set-config config ::circuit-breaker-config)
+                          (assoc ::circuit-breaker-stats {::requests (atom [])
+                                                          ::state (atom {::state-type ::closed
+                                                                         ::last-change nil})}))
    ::before (fn [context]
               (cond
                 (and (opened? context) (opened-time-exceeded? context)) (trip! context ::half-opened)
