@@ -2,6 +2,7 @@
   (:require [com.doubleelbow.capital.alpha :as capital]
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
             [com.doubleelbow.capital.interceptor.impl.time :as time-intc]
+            [com.doubleelbow.capital.interceptor.impl.response-error :as response-error]
             [io.pedestal.log :as log]
             [clj-time.core :as time]))
 
@@ -26,9 +27,6 @@
         max-open-duration (config context ::open-duration)]
     (time/after? (time-intc/current-time context)
                  (time/plus opened-from (time/seconds max-open-duration)))))
-
-(defn- transient? [error]
-  (= ::transient (::capital/exception-type (ex-data error))))
 
 (defn- add! [context reqs transient?]
   (let [r {:date (time-intc/current-time context)
@@ -102,7 +100,7 @@
    ::interceptor/error (fn [context error]
                          (log/debug :msg "circuit breaker error fn")
                          (if (not (opened? context))
-                           (if (transient? error)
+                           (if (response-error/transient? error)
                              (do
                                (log/warn :msg "transient error" :request (::capital/request context) :error error)
                                (repopulate! context true)
