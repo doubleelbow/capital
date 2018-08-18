@@ -1,4 +1,4 @@
-(ns com.doubleelbow.capital.interceptor.impl.time
+(ns com.doubleelbow.capital.interceptor.impl.alpha.time
   (:require [com.doubleelbow.capital.interceptor.alpha :as interceptor]
             [clj-time.core :as time]))
 

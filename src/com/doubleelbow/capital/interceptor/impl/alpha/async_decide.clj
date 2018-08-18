@@ -1,4 +1,4 @@
-(ns com.doubleelbow.capital.interceptor.impl.async-decide
+(ns com.doubleelbow.capital.interceptor.impl.alpha.async-decide
   (:require [com.doubleelbow.capital.alpha :as capital]
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
             [io.pedestal.log :as log]))

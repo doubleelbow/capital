@@ -1,4 +1,4 @@
-(ns com.doubleelbow.capital.interceptor.impl.response-error
+(ns com.doubleelbow.capital.interceptor.impl.alpha.response-error
   (:require [com.doubleelbow.capital.alpha :as capital]
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
             [io.pedestal.log :as log]))

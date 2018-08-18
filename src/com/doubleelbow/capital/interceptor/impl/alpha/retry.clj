@@ -1,7 +1,7 @@
-(ns com.doubleelbow.capital.interceptor.impl.retry
+(ns com.doubleelbow.capital.interceptor.impl.alpha.retry
   (:require [com.doubleelbow.capital.alpha :as capital]
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
-            [com.doubleelbow.capital.interceptor.impl.response-error :as response-error]
+            [com.doubleelbow.capital.interceptor.impl.alpha.response-error :as response-error]
             [clojure.core.async :refer [<!] :as async]
             [io.pedestal.log :as log]))
 

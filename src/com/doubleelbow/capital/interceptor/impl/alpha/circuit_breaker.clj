@@ -1,8 +1,8 @@
-(ns com.doubleelbow.capital.interceptor.impl.circuit-breaker
+(ns com.doubleelbow.capital.interceptor.impl.alpha.circuit-breaker
   (:require [com.doubleelbow.capital.alpha :as capital]
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
-            [com.doubleelbow.capital.interceptor.impl.time :as time-intc]
-            [com.doubleelbow.capital.interceptor.impl.response-error :as response-error]
+            [com.doubleelbow.capital.interceptor.impl.alpha.time :as time-intc]
+            [com.doubleelbow.capital.interceptor.impl.alpha.response-error :as response-error]
             [io.pedestal.log :as log]
             [clj-time.core :as time]))
 
