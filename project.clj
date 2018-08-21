@@ -3,9 +3,10 @@
   :url "https://github.com/doubleelbow/capital"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :plugins [[lein-tools-deps "0.4.1"]
-            [lein-sub "0.3.0"]]
+  :dependencies [[org.clojure/core.async "0.4.474"]
+                 [io.pedestal/pedestal.log "0.5.4"]
+                 [clj-time "0.14.4"]]
+  :plugins [[lein-sub "0.3.0"]]
   :sub ["dev/examples/echo"]
-  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
-  :lein-tools-deps/config {:config-files [:install :user :project]}
-  :profiles {:dev {:lein-tools-deps/config {:aliases [:dev]}}})
+  :profiles {:dev {:source-paths ["dev"]
+                   :dependencies [[org.clojure/tools.namespace "0.3.0-alpha1"]]}})

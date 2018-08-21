@@ -1,6 +1,0 @@
-{:paths ["src"]
- :deps {org.clojure/core.async {:mvn/version "0.4.474"}
-        io.pedestal/pedestal.log {:mvn/version "0.5.4"}
-        clj-time {:mvn/version "0.14.4"}}
- :aliases {:dev {:extra-paths ["dev"]
-                 :extra-deps {org.clojure/tools.namespace {:mvn/version "0.3.0-alpha1"}}}}}
