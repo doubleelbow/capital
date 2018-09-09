@@ -11,7 +11,7 @@
 (defn- should-check-dependencies? [context additional-intcs-type]
   (not (additional-intcs-type (deref (::async-decide-checks context)))))
 
-(defn async-decide-intc [config]
+(defn interceptor [config]
   {::interceptor/name ::async-decide
    ::interceptor/init {::async-decide-checks (atom {::async-intcs false
                                                     ::sync-intcs false})}

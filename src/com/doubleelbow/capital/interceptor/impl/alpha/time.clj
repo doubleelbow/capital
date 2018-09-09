@@ -5,10 +5,10 @@
 (defn current-time [context]
   (apply (::current-time-fn context) [context]))
 
-(defn time-intc
+(defn interceptor
   ([]
-   (time-intc (fn [context]
-                (time/now))))
+   (interceptor (fn [context]
+                  (time/now))))
   ([time-fn]
    {::interceptor/name ::time
     ::interceptor/init {::current-time-fn time-fn}}))

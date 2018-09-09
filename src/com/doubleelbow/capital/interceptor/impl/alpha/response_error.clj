@@ -3,12 +3,25 @@
             [com.doubleelbow.capital.interceptor.alpha :as interceptor]
             [io.pedestal.log :as log]))
 
-(defn assoc-data [error key val & kvs]
-  (ex-info (.getMessage error)
-           (apply assoc (concat [(ex-data error) key val] kvs))))
+(defn types [error]
+  (::response-error-type (ex-data error) #{}))
+
+(defn add-type [error type]
+  (let [data (ex-data error)
+        old-type (::response-error-type data #{})]
+   (ex-info (.getMessage error)
+            (assoc data ::response-error-type (conj old-type type)))))
+
+(defn- contains-type? [error type]
+  (log/debug :msg "check type of response error" :types (::response-error-type (ex-data error)))
+  (contains? (types error) type))
 
 (defn transient? [error]
-  (= ::transient (::capital/exception-type (ex-data error))))
+  (contains-type? error ::transient))
+
+(defn retriable? [error]
+  (log/debug :msg "check if error retriable")
+  (contains-type? error ::retriable))
 
 (defn interceptor [error-fn & fns]
   {::interceptor/name ::response-error

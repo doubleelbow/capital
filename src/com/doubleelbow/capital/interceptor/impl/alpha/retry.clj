@@ -16,7 +16,7 @@
   (get-in context [::retry-data k]))
 
 (defn- retry? [context error]
-  (let [retriable? (config context ::retriable-fn #(response-error/transient? %2))]
+  (let [retriable? (config context ::retriable-fn #(response-error/retriable? %2))]
     (and (< (data context ::counter) (config context ::max-retries))
          (retriable? context error))))
 
@@ -43,7 +43,7 @@
 
 (defn interceptor [config]
   {::interceptor/name ::retry
-   ::interceptor/init {::retry-config (atom config)}
+   ::interceptor/init (impl/set-config config ::retry-config)
    ::interceptor/up (fn [context]
                       (if (contains? context ::retry-data)
                         (do
@@ -56,6 +56,7 @@
                               (assoc ::retry-data {::queue (concat [current-intc] queue)
                                                    ::counter 0})))))
    ::interceptor/error (fn [context error]
+                         (log/debug :msg "handle error in retry" :retry-data (::retry-data context))
                          (if (retry? context error)
                            (-> context
                                (update-in [::retry-data ::counter] inc)

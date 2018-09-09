@@ -78,7 +78,7 @@
       (trip! context ::opened)
       (clear-requests! context))))
 
-(defn circuit-breaker-intc [config]
+(defn interceptor [config]
   {::interceptor/name ::circuit-breaker
    ::interceptor/dependencies ::time-intc/time
    ::interceptor/aliases [::before ::after]
@@ -106,6 +106,7 @@
                                (repopulate! context true)
                                (trip-on-transient-if-necessary! context))
                              (do
+                               (log/debug :msg "error is not transient")
                                (repopulate! context false)))
                            (log/debug :msg "skipping circuit breaker error handling because circuit breaker is opened"))
                          (assoc context ::capital/error error))})
