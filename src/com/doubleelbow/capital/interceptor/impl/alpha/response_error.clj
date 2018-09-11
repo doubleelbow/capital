@@ -23,10 +23,10 @@
   (log/debug :msg "check if error retriable")
   (contains-type? error ::retriable))
 
-(defn interceptor [error-fn & fns]
+(defn interceptor [& error-fns]
   {::interceptor/name ::response-error
    ::interceptor/error (fn [context error]
                          (assoc context ::capital/error (reduce #(apply %2 [context %1])
                                                                 error
-                                                                (concat [error-fn] fns))))})
+                                                                error-fns)))})
 

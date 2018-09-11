@@ -93,9 +93,11 @@
               context)
    ::after (fn [context]
              (log/debug :msg "circuit breaker successful response fn")
-             (repopulate! context false)
-             (if (half-opened? context)
-               (trip! context ::closed))
+             (if (not (opened? context))
+               (do
+                 (repopulate! context false)
+                 (if (half-opened? context)
+                   (trip! context ::closed))))
              context)
    ::interceptor/error (fn [context error]
                          (log/debug :msg "circuit breaker error fn")
@@ -108,6 +110,6 @@
                              (do
                                (log/debug :msg "error is not transient")
                                (repopulate! context false)))
-                           (log/debug :msg "skipping circuit breaker error handling because circuit breaker is opened"))
+                           (log/info :msg "skipping circuit breaker error handling because circuit breaker is opened"))
                          (assoc context ::capital/error error))})
 
