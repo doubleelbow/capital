@@ -1,5 +1,5 @@
 (defproject com.doubleelbow.capital/capital "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "Helps with external system calls"
   :url "https://github.com/doubleelbow/capital"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

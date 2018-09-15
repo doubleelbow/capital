@@ -1,7 +1,0 @@
-{:paths ["src" "config"]
- :deps {com.doubleelbow/capital {:local/root "../../../"}
-        io.pedestal/pedestal.log {:mvn/version "0.5.4"}
-        ch.qos.logback/logback-classic {:mvn/version "1.1.7" :exclusions [org.slf4j/slf4j-api]}
-        org.slf4j/jul-to-slf4j {:mvn/version "1.7.21"}
-        org.slf4j/jcl-over-slf4j {:mvn/version "1.7.21"}
-        org.slf4j/log4j-over-slf4j {:mvn/version "1.7.21"}}}
