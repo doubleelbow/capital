@@ -1,4 +1,4 @@
-# capital
+# capital [![Clojars Project](https://img.shields.io/clojars/v/com.doubleelbow.capital/capital.svg)](https://clojars.org/com.doubleelbow.capital/capital)
 
 Capital is badly named clojure library that helps with calls to external systems. At core it uses [the concept of interceptors](http://pedestal.io/reference/interceptors) as defined by Pedestal.
 
@@ -21,11 +21,11 @@ External systems, external services, 3<sup>rd</sup> party systems are terms used
 
 ## Overview
 
-The world today seems absolutely crackers &hellip; Majority of applications have to communicate with external systems. We're routinely writing code for reading files, making HTTP requests or querying databases. When errors in this between systems communication happen our applications can start to suffer. Capital strives to improve resiliency of your application by using patterns such as retry and circuit breaker.
+The world today seems absolutely crackers &hellip; Majority of applications have to communicate with external systems. We're routinely writing code for reading files, making HTTP requests or querying databases. When failures in this between systems communication happen our applications can start to suffer. Capital strives to improve resiliency of your application by using patterns such as [retry](https://github.com/doubleelbow/capital/blob/master/doc/interceptors/retry.md) and [circuit breaker](https://github.com/doubleelbow/capital/blob/master/doc/interceptors/circuit_breaker.md).
 
 ## Thanks
 
-Thanks to Pedestal for interceptors and logging.
+Thanks to [pedestal](https://github.com/pedestal/pedestal) for interceptors and logging. Thanks also to authors of [pathetic](https://github.com/davidsantiago/pathetic) and [clj-time](https://github.com/clj-time/clj-time) libraries.
 
 
 ## License
