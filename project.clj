@@ -9,4 +9,11 @@
   :plugins [[lein-sub "0.3.0"]]
   :sub ["dev/examples/echo"]
   :profiles {:dev {:source-paths ["dev"]
-                   :dependencies [[org.clojure/tools.namespace "0.3.0-alpha1"]]}})
+                   :dependencies [[org.clojure/tools.namespace "0.3.0-alpha1"]]}
+             :plugins [[com.doubleelbow/lein-deploy-prepared "0.1.0"]]}
+  :repositories [["snapshots" {:url "https://repo.clojars.org"
+                               :username :env/clojars_user
+                               :password :env/clojars_pass}]
+                 ["releases" {:url "https://repo.clojars.org"
+                              :username :env/clojars_user
+                              :password :env/clojars_pass}]])
