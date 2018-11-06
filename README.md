@@ -1,4 +1,4 @@
-# capital [![Clojars Project](https://img.shields.io/clojars/v/com.doubleelbow.capital/capital.svg)](https://clojars.org/com.doubleelbow.capital/capital)
+# capital [![CircleCI](https://circleci.com/gh/doubleelbow/capital.svg?style=svg)](https://circleci.com/gh/doubleelbow/capital) [![Clojars Project](https://img.shields.io/clojars/v/com.doubleelbow.capital/capital.svg)](https://clojars.org/com.doubleelbow.capital/capital)
 
 Capital is badly named clojure library that helps with calls to external systems. At core it uses [the concept of interceptors](http://pedestal.io/reference/interceptors) as defined by Pedestal.
 
@@ -32,5 +32,4 @@ Thanks to [pedestal](https://github.com/pedestal/pedestal) for interceptors and 
 
 Copyright © 2018 doubleelbow
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
